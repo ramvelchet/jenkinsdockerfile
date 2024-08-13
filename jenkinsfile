@@ -1,0 +1,25 @@
+pipeline {
+    agent any 
+    options {
+        skipstagesafterunstable()
+    }
+    stages{
+        stage('clone repo') {
+            script{
+                checkout scm
+            
+            }
+        }
+        stage('build image'){
+            app = docker.build("ubuntunginx")
+        }
+        stage('push to ECR') {
+            script{
+                docker.withregistry('https://891376947117.dkr.ecr.eu-west-1.amazonaws.com', 'ecr:eu-west-1:ramvelcheti'){
+                  app.push("${env.BUILD_NUMBER}")
+                  app.push ("latest")
+                }
+            }       
+        }
+    }
+}
